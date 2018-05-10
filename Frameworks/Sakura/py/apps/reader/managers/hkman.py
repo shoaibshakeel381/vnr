@@ -9,7 +9,7 @@ if __name__ == '__main__':
   debug.initenv()
 
 from functools import partial
-from PySide.QtCore import Signal, Property, QObject, QTimer
+from PySide.QtCore import Signal, Property, QObject
 from sakurakit import skos
 from sakurakit.skdebug import dprint
 from sakurakit.skclass import memoized #, memoizedproperty
@@ -116,33 +116,15 @@ class _HotkeyManager(object):
     #qApp = QtCore.QCoreApplication.instance()
     #qApp.aboutToQuit.connect(self.stop)
 
-    import defs
-    t = self.rehookTimer = QTimer(q)
-    t.setInterval(defs.HK_REHOOK_INTERVAL)
-    t.setSingleShot(False)
-    t.timeout.connect(self._rehook)
 
-  def _rehook(self):
-    if self.enabled and self._pyhk:
-      self._pyhk.hm.HookKeyboard()
-      self._pyhk.hm.HookMouse()
 
   def start(self):
-    self.rehookTimer.start()
-    self.pyhk.hm.HookKeyboard()
-    self.pyhk.hm.HookMouse()
-    for hk in self._mapping.itervalues():
-      if hk['on'] and hk['key']:
-        self._addHotkey(hk['key'])
+    dprint("enter start")
+    self.pyhk.start()
 
   def stop(self):
-    self.rehookTimer.stop()
-    if self._pyhk:
-      self._pyhk.hm.UnhookKeyboard()
-      self._pyhk.hm.UnhookMouse()
-      for hk in self._mapping.itervalues():
-        if hk['on'] and hk['key']:
-          self._removeHotkey(hk['key'])
+    dprint("enter stop")
+    self.pyhk.end()
 
   def setMappingEnabled(self, name, t):
     m = self._mapping[name]
@@ -184,6 +166,11 @@ class _HotkeyManager(object):
       if skos.WIN:
         from pyhk import pyhk
         self._pyhk = pyhk()
+        self._pyhk.removeHotkey(['Ctrl','Shift','Q']) #remove end hotkey
+
+        for hk in self._mapping.itervalues():
+          if hk['on'] and hk['key']:
+            self._addHotkey(hk['key'])
       else:
         self._pyhk = dummy_pyhk()
     return self._pyhk
@@ -192,6 +179,7 @@ class _HotkeyManager(object):
     for name, hk in self._mapping.iteritems():
       if hk['key'] == key and hk['on']:
         apply(hk['do'])
+    dprint("_onHotkey leave")
 
   @staticmethod
   def _onTts():
