@@ -116,10 +116,15 @@ class _HotkeyManager(object):
     #qApp = QtCore.QCoreApplication.instance()
     #qApp.aboutToQuit.connect(self.stop)
 
+    import defs
 
 
   def start(self):
     dprint("enter start")
+    self._pyhk.removeHotkey(['Ctrl','Shift','Q']) #remove end hotkey
+    for hk in self._mapping.itervalues():
+      if hk['on'] and hk['key']:
+        self._addHotkey(hk['key'])
     self.pyhk.start()
 
   def stop(self):
@@ -166,11 +171,10 @@ class _HotkeyManager(object):
       if skos.WIN:
         from pyhk import pyhk
         self._pyhk = pyhk()
-        self._pyhk.removeHotkey(['Ctrl','Shift','Q']) #remove end hotkey
 
-        for hk in self._mapping.itervalues():
-          if hk['on'] and hk['key']:
-            self._addHotkey(hk['key'])
+#        for hk in self._mapping.itervalues():
+#          if hk['on'] and hk['key']:
+#            self._addHotkey(hk['key'])
       else:
         self._pyhk = dummy_pyhk()
     return self._pyhk
@@ -195,10 +199,11 @@ class _HotkeyManager(object):
 
   @staticmethod
   def _onText():
+    dprint("_onText enter")
     import textman
     tm = textman.manager()
     tm.setEnabled(not tm.isEnabled())
-    dprint("pass")
+    dprint("_onText pass")
 
   @staticmethod
   def _onGrab():
