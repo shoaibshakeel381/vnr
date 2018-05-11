@@ -115,21 +115,23 @@ class _HotkeyManager(object):
     #from PySide import QtCore
     #qApp = QtCore.QCoreApplication.instance()
     #qApp.aboutToQuit.connect(self.stop)
-
-    import defs
+#    for hk in self._mapping.itervalues():
+#      if hk['on'] and hk['key']:
+#        self._addHotkey(hk['key'])
 
 
   def start(self):
     dprint("enter start")
-    self._pyhk.removeHotkey(['Ctrl','Shift','Q']) #remove end hotkey
     for hk in self._mapping.itervalues():
       if hk['on'] and hk['key']:
         self._addHotkey(hk['key'])
-    self.pyhk.start()
 
   def stop(self):
     dprint("enter stop")
-    self.pyhk.end()
+    if self._pyhk:
+      for hk in self._mapping.itervalues():
+        if hk['on'] and hk['key']:
+          self._removeHotkey(hk['key'])
 
   def setMappingEnabled(self, name, t):
     m = self._mapping[name]
@@ -171,6 +173,7 @@ class _HotkeyManager(object):
       if skos.WIN:
         from pyhk import pyhk
         self._pyhk = pyhk()
+        self._pyhk.removeHotkey(['Ctrl','Shift','Q']) #remove end hotkey
 
 #        for hk in self._mapping.itervalues():
 #          if hk['on'] and hk['key']:
@@ -180,6 +183,7 @@ class _HotkeyManager(object):
     return self._pyhk
 
   def _onHotkey(self, key): # callback
+    dprint("_onHotkey enter")
     for name, hk in self._mapping.iteritems():
       if hk['key'] == key and hk['on']:
         apply(hk['do'])
