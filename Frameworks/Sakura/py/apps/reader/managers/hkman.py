@@ -47,10 +47,10 @@ class HotkeyManager(QObject):
     if d.enabled != t:
       dprint("t = %s" % t)
       d.enabled = t
-      if t:
-        d.start()
-      else:
-        d.stop()
+#      if t:
+#        d.start()
+#      else:
+#        d.stop()
       self.enabledChanged.emit(t)
 
   #def setTtsEnabled(self, t):
@@ -115,27 +115,20 @@ class _HotkeyManager(object):
     #from PySide import QtCore
     #qApp = QtCore.QCoreApplication.instance()
     #qApp.aboutToQuit.connect(self.stop)
-#    for hk in self._mapping.itervalues():
-#      if hk['on'] and hk['key']:
-#        self._addHotkey(hk['key'])
+
+	# hard code hotkey, I am lazy
+    import keyboard
+    keyboard.add_hotkey('f7', self._onText)
 
 
   def start(self):
     dprint("enter start")
-#    if not self.pyhk.hm.keyboard_hook:
-#      dprint("hook")
-#      self._pyhk.hm.HookKeyboard()
-#      self._pyhk.hm.HookMouse()
     for hk in self._mapping.itervalues():
       if hk['on'] and hk['key']:
         self._addHotkey(hk['key'])
 
   def stop(self):
     dprint("enter stop")
-#    if self.pyhk.hm.keyboard_hook:
-#      dprint("unhook")
-#      self._pyhk.hm.UnhookKeyboard()
-#      self._pyhk.hm.UnhookMouse()
     if self._pyhk:
       for hk in self._mapping.itervalues():
         if hk['on'] and hk['key']:
