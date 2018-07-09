@@ -77,10 +77,11 @@ class CometManager(QObject):
   def __init__(self, parent = None):
     super(CometManager, self).__init__(parent)
     self.__d = _CometManager(self)
-    self.enabled = True
+    self.enabled = False
 
   def isEnabled(self): return self.enabled
   def setEnabled(self, v):
+    v = False
     if self.enabled != v:
       self.enabled = v
       if not v:

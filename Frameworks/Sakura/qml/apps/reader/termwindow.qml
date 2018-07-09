@@ -12,7 +12,7 @@ import '.' as Main
 Share.View { id: root_
   //implicitWidth: 480; implicitHeight: 360
 
-  width: 1300; height: 500
+  width: 1024; height: 500
 
   property string windowTitle: termView_.windowTitle
   //property int windowFlags: termView_.windowFlags
@@ -54,7 +54,7 @@ Share.View { id: root_
         top: parent.top; bottom: parent.bottom
         right: parent.right
       }
-      visible: root_.windowVisible && statusPlugin_.online
+      visible: root_.windowVisible && statusPlugin_.online && false
       topicKey: 'term'
       Desktop.Splitter.expanding: false
     }

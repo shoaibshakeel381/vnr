@@ -9596,6 +9596,7 @@ class DataManager(QObject):
       if incremental:
         result = nm.mergeTerms(l, updateTime,
             d.user.name, d.user.password, init=False) #, parent=self)
+        growl.msg("Incremental term update. Result=" + result)
         if not result:
           l = None
         else:
@@ -9610,7 +9611,7 @@ class DataManager(QObject):
               d.user.name, d.user.password, init=False) #, parent=self)
           if result:
             l, now = result
-      if l:
+      if False:
         #if not editable and editable != d.termsEditable:
         #  for it in l:
         #    it.init(self)

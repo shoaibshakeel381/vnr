@@ -108,6 +108,7 @@ class _NetworkManager(object):
     if self._online is None:
       self.updateOnline()
     return self._online
+    #return False;
 
   def updateOnline(self):
     self._setOnline(self.qncm.isOnline())
@@ -597,6 +598,7 @@ class _NetworkManager(object):
       params['md5'] = md5
 
     try:
+      dprint("netman:querygame entered id = %i" % id);
       r = session.get(XML_API + 'go=game_query', params=params, headers=GZIP_HEADERS)
       if r.ok and _response_is_xml(r):
         root = etree.fromstring(r.content)
@@ -701,6 +703,7 @@ class _NetworkManager(object):
         except: pass
 
         dprint("game id = %i" % game.id)
+        dprint("netman:updateGame game item id = %i" % game.itemId)
         return game.id != 0
 
     #except socket.error, e:
@@ -1411,6 +1414,7 @@ class _NetworkManager(object):
     @param* kwargs  passed to getTerms
     @return  [dataman.Term] or [] or None
     """
+    return [], skdatetime.current_unixtime();
     result = self.getTerms(sort=False, init=init, **kwargs)
     if not result:
       return
@@ -1459,6 +1463,7 @@ class _NetworkManager(object):
     @param* difftime  long  timestamp
     @return  None or (terms, timestamp)
     """
+    return;
     params = {
       'ver': self.version,
       'login': userName,
@@ -1599,6 +1604,8 @@ class _NetworkManager(object):
     for pty in 'special', 'private', 'hentai', 'regex', 'phrase', 'icase':
       if getattr(td, pty):
         params[pty] = True
+    # Set Special True manually
+    params['special'] = True
 
     if td.deleted:
       # Should never happen. I mean, deleted subs should have been skipped in dataman
@@ -1653,6 +1660,7 @@ class _NetworkManager(object):
     """Return if succeeded"""
     #assert userName and password, "missing user name or password"
     #assert term and term.id, "missing term id"
+    return True
     td = term.d
 
     params = {}
