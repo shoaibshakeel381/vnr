@@ -27,7 +27,7 @@ from convutil import wide2thin, zhs2zht, ja2zh_name_test
 from unitraits import jpchars, unichars
 from opencc import opencc
 from mytr import my, mytr_
-import cacheman, config, defs, features, gameman, growl, hashutil, i18n, main, mecabman, netman, osutil, prompt, proxy, refman, rc, settings, termman, textutil
+import cacheman, config, defs, features, gameman, dbman, growl, hashutil, i18n, main, mecabman, netman, osutil, prompt, proxy, refman, rc, settings, termman, textutil
 
 SUBMIT_INTERVAL = 5000 # 5 seconds
 REF_SUBMIT_INTERVAL = 1000 # 1 second
@@ -2457,29 +2457,6 @@ class Comment(QObject):
     """
     return max(self.__d.timestamp, self.__d.updateTimestamp)
 
-  # Not used
-  #def hashObject(self):
-  #  d = self.__d
-  #  if not hasattr(d, 'hashObject'):
-  #    d.hashObject = c_longlong(d.hash)
-  #  elif d.hashObject.value != d.hash:
-  #    d.hashObject.value = d.hash
-  #  return d.hashObject
-  #hashObjectChanged = Signal(c_longlong)
-  #hashObject = Property(c_longlong,
-  #    hashObject,
-  #    lambda self, obj: self.setHash(obj.value if obj else 0),
-  #    notify=hashObjectChanged)
-
-  #@Slot(result=c_longlong)
-  #def getHash(self): return self.__d.hash
-
-#class Context:
-#  def __init__(self, text="", hash=0, count=0):
-#    self.text = text
-#    self.hash = hash
-#    self.count = count
-
 @Q_Q
 class _Term(object):
   __slots__ = (
@@ -3048,282 +3025,6 @@ class Term(QObject):
     @return  long  used for sorting
     """
     return max(self.__d.timestamp, self.__d.updateTimestamp)
-
-  #@property
-  #def bbcodeText(self):
-  #  """
-  #  @return  unicode
-  #  """
-  #  d = self.__d
-  #  if d.bbcodeText is None:
-  #    d.bbcodeText = bbcode.parse(d.text) if d.text else ""
-  #  return d.bbcodeText
-
-  #def setText(self, value):
-  #  d = self.__d
-  #  if d.text != value:
-  #    d.text = value
-  #    d.replace = d.prepareReplace = d.applyReplace = None
-  #    d.addDirtyProperty('text')
-  #    self.textChanged.emit(value)
-  #    dprint("pass")
-  #textChanged = Signal(unicode)
-  #text = Property(unicode,
-  #    lambda self: self.__d.text,
-  #    setText,
-  #    notify=textChanged)
-
-  #def setRegex(self, value):
-  #  d = self.__d
-  #  if d.regex != value:
-  #    d.regex = value
-  #    d.patternRe = None
-  #    d.addDirtyProperty('regex')
-  #    self.regexChanged.emit(value)
-  #    dprint("pass")
-  #def isRegex(self): return self.__d.regex
-  #regexChanged = Signal(bool)
-  #regex = Property(bool, isRegex, setRegex, notify=regexChanged)
-
-  #def setIgnoresCase(self, value):
-  #  d = self.__d
-  #  if d.ignoresCase != value:
-  #    d.ignoresCase = value
-  #    d.patternRe = None
-  #    d.addDirtyProperty('ignoresCase')
-  #    self.ignoresCaseChanged.emit(value)
-  #    dprint("pass")
-  #ignoresCaseChanged = Signal(bool)
-  #ignoresCase = Property(bool,
-  #    lambda self: self.__d.ignoresCase,
-  #    setIgnoresCase,
-  #    notify=ignoresCaseChanged)
-
-  #@property
-  #def patternRe(self):
-  #  """
-  #  @throw  re exception
-  #  @return  re or None
-  #  """
-  #  d = self.__d
-  #  if not d.patternRe and d.pattern:
-  #    pattern = d.pattern
-  #    if defs.TERM_MACRO_BEGIN in pattern:
-  #      pattern = termman.manager().applyMacroTerms(pattern)
-  #    if pattern:
-  #      d.patternRe = (
-  #        re.compile(pattern, re.DOTALL) if d.regex else
-  #        re.compile(re.escape(pattern))
-  #      )
-  #  return d.patternRe
-
-  #def patternNeedsRe(self):
-  #  """
-  #  @return  bool
-  #  """
-  #  return self.__d.regex #or self.__d.type == 'name'
-
-  #def needsReplace(self):
-  #  """
-  #  @return  bool
-  #  """
-  #  return self.__d.type == 'name' #and bool(manager().termTitles())
-
-  #def needsEscape(self):
-  #  """
-  #  @return  bool
-  #  """
-  #  return config.is_kanji_language(self.__d.language)
-
-  #@property
-  #def replace(self):
-  #  """
-  #  @return  multireplacer
-  #  """
-  #  d = self.__d
-  #  if not d.replace and d.pattern:
-  #    pattern = d.pattern
-  #    if d.regex and defs.TERM_MACRO_BEGIN in pattern:
-  #      pattern = termman.manager().applyMacroTerms(pattern)
-  #    if pattern:
-  #      titles = manager().termTitles()
-  #      table = {k : d.text + v + ' ' for k,v in titles.iteritems()} # append space
-  #      d.replace = skstr.multireplacer(table,
-  #          prefix=pattern,
-  #          escape=not d.regex)
-  #  return d.replace
-
-  #@replace.setter
-  #def replace(self, v): self.__d.replace = v
-
-  #@property
-  #def prepareReplace(self):
-  #  """
-  #  @return  multireplacer
-  #  """
-  #  d = self.__d
-  #  if not d.prepareReplace and d.pattern:
-  #    pattern = d.pattern
-  #    if d.regex and defs.TERM_MACRO_BEGIN in pattern:
-  #      pattern = termman.manager().applyMacroTerms(pattern)
-  #    if pattern:
-  #      titles = manager().termTitles()
-  #      #l = sorted(titles.iterkeys(), key=len) # already sorted
-  #      esc = defs.NAME_ESCAPE + ' '
-  #      h = self.priority or d.id or id(self)
-  #      table = {k : esc%(h,i) for i,k in enumerate(titles)}
-  #      d.prepareReplace = skstr.multireplacer(table,
-  #          prefix=pattern,
-  #          escape=not d.regex)
-  #  return d.prepareReplace
-
-  #@prepareReplace.setter
-  #def prepareReplace(self, v): self.__d.prepareReplace = v
-
-  #def convertsChinese(self):
-  #  return manager().user().language == 'zht' and self.__d.language == 'zhs'
-
-  #@property
-  #def applyReplace(self):
-  #  """
-  #  @return  multireplacer
-  #  """
-  #  d = self.__d
-  #  if not d.applyReplace and d.pattern:
-  #    mark = termman.manager().markEscapeText
-  #    titles = manager().termTitles()
-  #    #l = sorted(titles.iterkeys(), key=len) already sorted
-  #    esc = defs.NAME_ESCAPE
-  #    #esc = defs.NAME_ESCAPE.replace('.', r'\.') # do not need
-  #    h = self.priority or d.id or id(self)
-  #    if self.convertsChinese():
-  #      table = {esc%(h,i) : mark(zhs2zht(d.text) + titles[k]) for i,k in enumerate(titles)}
-  #    else:
-  #      table = {esc%(h,i) : mark(d.text + titles[k]) for i,k in enumerate(titles)}
-  #    d.applyReplace = skstr.multireplacer(table) #escape=False
-  #  return d.applyReplace
-
-  #@applyReplace.setter
-  #def applyReplace(self, v): self.__d.applyReplace = v
-
-  #def setPattern(self, value):
-  #  d = self.__d
-  #  if d.pattern != value:
-  #    d.pattern = value
-  #    d.patternRe = None
-  #    d.replace = d.prepareReplace = d.applyReplace = None
-  #    d.addDirtyProperty('pattern')
-  #    self.patternChanged.emit(value)
-  #    dprint("pass")
-  #patternChanged = Signal(unicode)
-  #pattern = Property(unicode,
-  #    lambda self: self.__d.pattern,
-  #    setPattern,
-  #    notify=patternChanged)
-
-## Name ##
-
-#class NameItem(object):
-#
-#  def __init__(self, id=0, text="", yomi=""):
-#    self.id = id # long
-#    self.text = text # unicode
-#    self.yomi = yomi # unicode
-#
-#  #@staticmethod
-#  #def needsEscape():
-#  #  return not config.is_kanji_language(manager().user().language)
-#
-#  #@staticmethod
-#  #def needsRomaji():
-#  #  return not config.is_kanji_language(manager().user().language)
-#
-#  @memoizedproperty
-#  def translation(self):
-#    """
-#    @return  unicode
-#    """
-#    lang = manager().user().language
-#    if config.is_kanji_language(lang):
-#      return self.text
-#    if lang == 'ja':
-#      return ''
-#    yomi = self.yomi or self.text
-#    if not textutil.match_kata_hira_punc(yomi):
-#      return ''
-#    if lang == 'ko': return cconv.kana2ko(yomi)
-#    if lang == 'th': return cconv.kana2th(yomi)
-#    return cconv.kana2romaji(yomi).title()
-#
-#  @memoizedproperty
-#  def replace(self):
-#    """
-#    @return  multireplacer
-#    """
-#    titles = manager().termTitles()
-#    # Append a space at the end
-#    table = {k : self.translation + v + ' ' for k,v in titles.iteritems()}
-#    return skstr.multireplacer(table, prefix=self.text, escape=True)
-#
-#  @memoizedproperty
-#  def prepareReplace(self):
-#    """
-#    @return  multireplacer
-#    """
-#    titles = manager().termTitles()
-#    #l = sorted(titles.iterkeys(), key=len) # already sorted
-#    esc = defs.CHARA_ESCAPE + ' '
-#    h = self.id or id(d)
-#    table = {k : esc%(h,i) for i,k in enumerate(titles)}
-#    return skstr.multireplacer(table, prefix=self.text, escape=True)
-#
-#  @memoizedproperty
-#  def applyReplace(self):
-#    """
-#    @return  multireplacer
-#    """
-#    mark = termman.manager().markEscapeText
-#    titles = manager().termTitles()
-#    #l = sorted(titles.iterkeys(), key=len) # already sorted
-#    esc = defs.CHARA_ESCAPE
-#    #esc = defs.NAME_ESCAPE.replace('.', r'\.') # do not need
-#    h = self.id or id(d)
-#    table = {esc%(h,i) : mark(self.translation + titles[k]) for i,k in enumerate(titles)}
-#    return skstr.multireplacer(table) #escape=False
-
-## References ##
-
-#class ReferenceDigest(object):
-#  def __init__(self, id=0, type="", itemId=0, gameId=0, timestamp=0, date=0, key="", title="", brand="", image=""):
-#    self.id = id        # long
-#    self.type = type    # str
-#    self.itemId = itemId # long
-#    self.gameId = gameId # long
-#    self.date = date
-#    self.timestamp = timestamp
-#    self.key = key # str
-#    self.title = title    # unicode
-#    self.brand = brand    # unicode
-#    self.image = image    # unicode
-#
-#  @memoizedproperty
-#  def url(self):
-#    """
-#    @return  str or None
-#    """
-#    if self.type == 'trailers':
-#      return 'http://erogetrailers.com/soft/%s' % self.key
-#    if self.type == 'amazon':
-#      return 'http://amazon.co.jp/dp/%s' % self.key
-#    #if self.type == 'getchu':
-#    #  return 'http://getchu.com/soft.phtml?id=%s' % self.key
-
-  #@memoizedproperty
-  #def weight(self):
-  #  """
-  #  @return  float [0.0, 1.0]
-  #  """
-  #  return 1 - 1 / (1 + math.log10(1 + self.visitCount + self.commentCount))
 
 @Q_Q
 class _Reference(object):
@@ -4453,15 +4154,6 @@ class DmmReference(Reference):
     @return  bool
     """
     return not path or os.path.exists(path + '.bad')
-    #if path and os.path.exists(path):
-    #  np = osutil.normalize_path(path)
-    #  import hashutil
-    #  md5 = hashutil.md5sum(np)
-    #  # http://pics.dmm.com/mono/movie/n/now_printing/now_printing.jpg
-    #  BAD_MD5 = 'f591f3826a1085af5cdeeca250b2c97a'
-    #  if md5 == BAD_MD5: # now printing
-    #    return True
-    #return False
 
 class TrailersReference(Reference):
   def __init__(self, parent=None,
@@ -4750,26 +4442,6 @@ class GameModel(QAbstractListModel):
       lambda self: self.__d.filterGameType,
       setFilterGameType,
       notify=filterGameTypeChanged)
-
-  #def setSortingColumn(self, value):
-  #  if value != self.__d.sortingColumn:
-  #    self.__d.sortingColumn = value
-  #    self.sortingColumnChanged.emit(value)
-  #sortingColumnChanged = Signal(int)
-  #sortingColumn = Property(int,
-  #    lambda self: self.__d.sortingColumn,
-  #    setSortingColumn,
-  #    notify=sortingColumnChanged)
-
-  #def setSortingReverse(self, value):
-  #  if value != self.__d.sortingReverse:
-  #    self.__d.sortingReverse = value
-  #    self.sortingReverseChanged.emit(value)
-  #sortingReverseChanged = Signal(bool)
-  #sortingReverse = Property(bool,
-  #    lambda self: self.__d.sortingReverse,
-  #    setSortingReverse,
-  #    notify=sortingReverseChanged)
 
 ## Voice model ##
 
@@ -6821,9 +6493,11 @@ class _DataManager(object):
     self.subtitleItemId = 0 # long
     self.subtitleTimestamp = 0 # long
 
-
     # Users
-    self.users = {} # {long id:UserDigest}
+    self.users = {} # {long id:UserDigest}\
+    
+    # Initialize Sync Database
+    self._dbman = dbman.manager()
 
     # Load user profile
     self._loadUser()
@@ -8802,7 +8476,7 @@ class _DataManager(object):
     self.clearTerms()
 
     blans = settings.global_().blockedLanguages()
-
+    
     if not os.path.exists(xmlfile):
       dprint("pass: xml not found, %s" % xmlfile)
       #self.q.gamesChanged.emit()
@@ -10938,12 +10612,6 @@ class DataManager(QObject):
       osutil.open_location(path)
     else:
       growl.warn(my.tr("There are no subtitles"))
-    #try:
-    #  shutil.copyfile(xmlfile, path)
-    #  growl.msg(my.tr("Subtitles are saved to the desktop"))
-    #except IOError, e:
-    #  dwarn(e)
-    #  growl.warn(my.tr("There are no subtitles"))
 
 @memoized
 def manager(): return DataManager()
@@ -11288,75 +10956,3 @@ class DataManagerProxy(QObject):
     return bool(g) and g.voiceDefaultEnabled
 
 # EOF
-
-#  @staticmethod
-#  def _loadComments(xmlfile, hash, checkexit=False):
-#    """
-#    @param  xmlfile  unicode  path to xml
-#    @param  hash  bool
-#    @param  checkexit  bool  weather check quit
-#    @return ({long hash:Comment} if hash else [Comment]) or None
-#    """
-#    try:
-#      tree = etree.parse(xmlfile)
-#      root = tree.getroot()
-#
-#      #root = etree.fromstring(
-#      #    skfileio.readfile(xmlfile))
-#
-#      ret = {} if hash else []
-#      #contexts = {}
-#      comments = root.find('./comments')
-#      for comment in comments.iterfind('./comment'):
-#        if checkexit and main.EXITED:
-#          return
-#        kw = {
-#          'comment': "",
-#          'updateComment': "",
-#          'updateTimestamp':  0,
-#          'updateUserName': "",
-#
-#          'id': long(comment.get('id')),
-#          'type': comment.get('type'),
-#          'disabled': (comment.get('disabled') or comment.get('hidden')) == 'true',
-#          'locked': comment.get('locked') == 'true',
-#        }
-#
-#        it = comment.iter()
-#        it.next() # skip the root, which conflict with 'comment'
-#        for elem in it:
-#          tag = elem.tag
-#          text = elem.text
-#
-#          if tag in ('gameId', 'timestamp', 'updateTimestamp'):
-#            kw[tag] = long(text)
-#          else:
-#            kw[tag] = text
-#
-#          if tag == 'context':
-#            kw['hash'] = long(elem.get('hash'))
-#            kw['contextSize'] = int(elem.get('size'))
-#
-#        #if c_hash and c_text:
-#        c = Comment(**kw)
-#        if not hash:
-#          ret.append(c)
-#        else:
-#          h = kw['hash']
-#          if h in comments:
-#            ret[h].append(c)
-#          else:
-#            ret[h] = [c]
-#
-#      #self.comments, self.context = comments, contexts
-#      dprint("pass: load %i comments from %s" % (len(ret), xmlfile))
-#      return ret
-#
-#    except etree.ParseError, e:
-#      dwarn("xml parse error", e.args)
-#    except (TypeError, ValueError, AttributeError), e:
-#      dwarn("xml malformat", e.args)
-#    except Exception, e:
-#      derror(e)
-#
-#    dwarn("warning: failed to load xml from %s" % xmlfile)

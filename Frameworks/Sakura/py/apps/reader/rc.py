@@ -142,6 +142,7 @@ XML_PATHS = {
   'users': DIR_USER_XML + '/users.xml',  # $user/xml/1/users.xml, user library
 
   'terms': DIR_CACHE_SYNC + '/gamedic.xml',  # Caches/Sync/gamedic.xml, term library
+  'syncdb': DIR_CACHE_SYNC+ '/sync.db',   # Caches/Sync/gamedic.db, term library as database
 }
 
 def xml_path(name, backup=False):
